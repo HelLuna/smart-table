@@ -1,20 +1,18 @@
-import { createComparison, defaultRules } from "../lib/compare.js";
+export function initFiltering(elements) {
+  const updateIndexes = (elements, indexes) => {
+    Object.keys(indexes).forEach((elName) => {
+      elements[elName].append(
+        ...Object.values(indexes[elName]).map((name) => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          return option;
+        }),
+      );
+    });
+  };
 
-const compare = createComparison(defaultRules);
-
-export function initFiltering(elements, indexes) {
-  Object.keys(indexes).forEach((elName) => {
-    elements[elName].append(
-      ...Object.values(indexes[elName]).map((name) => {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        return option;
-      }),
-    );
-  });
-
-  return (data, state, action) => {
+  const applyFiltering = (query, state, action) => {
     if (action && action.name === "clear") {
       const parentElement = action.parentElement;
       const inputField = parentElement.querySelector("input");
@@ -23,6 +21,17 @@ export function initFiltering(elements, indexes) {
       state[action.dataset.field] = "";
     }
 
-    return data.filter((row) => compare(row, state));
+    const filter = {};
+    Object.keys(elements).forEach((key) => {
+      if (elements[key]) {
+        if (["INPUT", "SELECT"].includes(elements[key].tagName) && elements[key].value) {
+          filter[`filter[${elements[key].name}]`] = elements[key].value;
+        }
+      }
+    });
+
+    return Object.keys(filter).length ? Object.assign({}, query, filter) : query;
   };
+
+  return { updateIndexes, applyFiltering };
 }
