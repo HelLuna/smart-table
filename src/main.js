@@ -1,7 +1,6 @@
 import "./fonts/ys-display/fonts.css";
 import "./style.css";
 
-// import { data as sourceData } from "./data/dataset_1.js";
 import { initData } from "./data.js";
 import { processFormData } from "./lib/utils.js";
 import { initTable } from "./components/table.js";
@@ -41,9 +40,9 @@ function collectState() {
 async function render(action) {
   let state = collectState();
   let query = {};
-  // result = applySearching(result, state, action);
+  query = applySearching(query, state, action);
   query = applyFiltering(query, state, action);
-  // result = applySorting(result, state, action);
+  query = applySorting(query, state, action);
   query = applyPagination(query, state, action);
 
   const { total, items } = await api.getRecords(query);
